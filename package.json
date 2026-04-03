@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "npmforce": "npm i -f"
+    "start": "node server",
+    "npmforce": "npm i -f",
+    "vercel-start": "node server.js"
   },
   "author": "",
   "license": "ISC",
