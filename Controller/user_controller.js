@@ -342,24 +342,22 @@ const setEmailPassword = (model) =>
   });
 
 const getAllUsers = catchAsync(async (req, res, next) => {
-  // Fetch users excluding sensitive fields
-  const allUsers = await user_model
-    .find(query)
-    .select("-password -resetToken -refreshToken -otp")
-    .sort({ createdAt: -1 });
+  // Fetch all users excluding sensitive fields
+  const users = await user_model
+    .find()
+    .select("-password -resetToken -refreshToken -otp");
 
-  // Count total users matching query
-  const totalUsers = await user_model.countDocuments(query);
+  // Check if any users exist
+  if (!users || users.length === 0) {
+    return next(new AppError("No users found", 404));
+  }
 
-  // Return response with pagination
-  return successMessage(200, res, "Users retrieved successfully", {
-    users: allUsers,
-    ...generatePaginationJSON(pageNumber, totalUsers, pageLimit),
-  });
+  // Send success response
+  successMessage(200, res, "Users retrieved successfully", users);
 });
 
 module.exports = {
-  allUsers,
+  getAllUsers,
   signUpUser,
   loginUser,
   otpValidation,
