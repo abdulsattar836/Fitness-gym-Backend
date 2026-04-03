@@ -51,13 +51,13 @@ const signUpUser = catchAsync(async (req, res, next) => {
     if (existingUser.isVerified) {
       // User is already verified, prompt to log in
       return next(
-        new AppError("You are already signed up, please log in", 400)
+        new AppError("You are already signed up, please log in", 400),
       );
     } else {
       // Encrypt the new password
       encryptPassword = CryptoJS.AES.encrypt(
         password,
-        process.env.CRYPTO_SEC
+        process.env.CRYPTO_SEC,
       ).toString();
 
       // Generate OTP with expiration time
@@ -65,7 +65,7 @@ const signUpUser = catchAsync(async (req, res, next) => {
       const expirationTime = new Date().getTime() + 1 * 60 * 1000;
       encryptOtp = CryptoJS.AES.encrypt(
         JSON.stringify({ otp: otpData.otp, expirationTime }),
-        process.env.CRYPTO_SEC
+        process.env.CRYPTO_SEC,
       ).toString();
 
       existingUser.fname = fname;
@@ -83,7 +83,7 @@ const signUpUser = catchAsync(async (req, res, next) => {
     // Encrypt password
     encryptPassword = CryptoJS.AES.encrypt(
       password,
-      process.env.CRYPTO_SEC
+      process.env.CRYPTO_SEC,
     ).toString();
 
     // Generate OTP with expiration time
@@ -91,7 +91,7 @@ const signUpUser = catchAsync(async (req, res, next) => {
     const expirationTime = new Date().getTime() + 1 * 60 * 1000;
     encryptOtp = CryptoJS.AES.encrypt(
       JSON.stringify({ otp: otpData.otp, expirationTime }),
-      process.env.CRYPTO_SEC
+      process.env.CRYPTO_SEC,
     ).toString();
 
     // Create a new user with encrypted OTP
@@ -113,7 +113,7 @@ const signUpUser = catchAsync(async (req, res, next) => {
     202,
     res,
     "OTP sent to your email, please verify your account",
-    null
+    null,
   );
 });
 
@@ -140,7 +140,7 @@ const loginUser = catchAsync(async (req, res, next) => {
   }
   const hashedPassword = CryptoJS.AES.decrypt(
     userExists.password,
-    process.env.CRYPTO_SEC
+    process.env.CRYPTO_SEC,
   );
   //console.log(hashedPassword);
   const realPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
@@ -148,7 +148,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     return next(new AppError("Incorrect password", 400));
   }
   const { refreshToken, accessToken } = generateAccessTokenRefreshToken(
-    userExists._id
+    userExists._id,
   );
   userExists.refreshToken.push(refreshToken);
   await userExists.save();
@@ -182,7 +182,7 @@ const verifyAccount = catchAsync(async (req, res, next) => {
   // Decrypt OTP and check expiration
   const decryptedOtpData = CryptoJS.AES.decrypt(
     user.otp,
-    process.env.CRYPTO_SEC
+    process.env.CRYPTO_SEC,
   ).toString(CryptoJS.enc.Utf8);
   const { otp: storedOtp, expirationTime } = JSON.parse(decryptedOtpData);
 
@@ -239,7 +239,7 @@ const otpValidation = catchAsync(async (req, res, next) => {
     try {
       const decrypted = CryptoJS.AES.decrypt(
         decodeURIComponent(user.forgetPassword),
-        process.env.CRYPTO_SEC
+        process.env.CRYPTO_SEC,
       ).toString(CryptoJS.enc.Utf8);
 
       const data = JSON.parse(decrypted);
@@ -300,7 +300,7 @@ const setEmailPassword = (model) =>
     // Decrypt the encrypted options and compare with the user-entered code
     const decrypted = CryptoJS.AES.decrypt(
       decodeURIComponent(encryptOpts),
-      process.env.CRYPTO_SEC
+      process.env.CRYPTO_SEC,
     ).toString(CryptoJS.enc.Utf8);
 
     let otpData;
@@ -334,14 +334,32 @@ const setEmailPassword = (model) =>
     // Update the user's password
     user.password = CryptoJS.AES.encrypt(
       newPassword,
-      process.env.CRYPTO_SEC
+      process.env.CRYPTO_SEC,
     ).toString();
     user.forgetPassword = null;
     await user.save();
     return successMessage(202, res, "Password reset successfully.", null);
   });
 
+const getAllUsers = catchAsync(async (req, res, next) => {
+  // Fetch users excluding sensitive fields
+  const allUsers = await user_model
+    .find(query)
+    .select("-password -resetToken -refreshToken -otp")
+    .sort({ createdAt: -1 });
+
+  // Count total users matching query
+  const totalUsers = await user_model.countDocuments(query);
+
+  // Return response with pagination
+  return successMessage(200, res, "Users retrieved successfully", {
+    users: allUsers,
+    ...generatePaginationJSON(pageNumber, totalUsers, pageLimit),
+  });
+});
+
 module.exports = {
+  allUsers,
   signUpUser,
   loginUser,
   otpValidation,

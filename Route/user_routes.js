@@ -12,6 +12,7 @@ const {
   otpValidation,
   setEmailPassword,
   getUserProfileAndReviews,
+  getAllUsers,
 } = require("../Controller/user_controller");
 const { logout } = require("../functions/user/user_functions");
 const {
@@ -240,5 +241,6 @@ ROUTE.route("/otp-validation").get(otpValidation);
  *         description: Password updated successfully
  */
 ROUTE.route("/set-password").post(setPassword(user_model));
+ROUTE.route("/all").post(getAllUsers);
 
 module.exports = ROUTE;
