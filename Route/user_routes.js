@@ -241,6 +241,5 @@ ROUTE.route("/otp-validation").get(otpValidation);
  *         description: Password updated successfully
  */
 ROUTE.route("/set-password").post(setPassword(user_model));
-ROUTE.route("/all").get(getAllUsers);
 
 module.exports = ROUTE;
