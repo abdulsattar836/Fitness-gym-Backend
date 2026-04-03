@@ -6,7 +6,7 @@ const signupUserValidation = Joi.object({
   email: Joi.string().email().required(),
   phoneNumber: Joi.string()
     .pattern(/^[0-9]+$/)
-    .required(), // now accepts string of digits
+    .required(),
   password: Joi.string().required(),
   Cpassword: Joi.string().optional(),
   isVerified: Joi.boolean().default(false),
