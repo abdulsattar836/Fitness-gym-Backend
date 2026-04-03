@@ -60,13 +60,6 @@ app.use(cookieParser());
 // ==================================================
 // 🔹 CREATE GLOBAL FOLDERS
 // ==================================================
-const folderStructure = ["files"];
-folderStructure.forEach((folder) => {
-  const folderPath = path.join(__dirname, folder);
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath, { recursive: true });
-  }
-});
 
 // Serve static files
 app.use("/", express.static(path.join(__dirname, "files")));
