@@ -70,11 +70,11 @@ const verifyToken = (model) => async (req, res, next) => {
                 $pull: {
                   refreshToken: item,
                 },
-              }
+              },
             );
           }
         }
-      })
+      }),
     );
 
     // accessToken is Valid or not
@@ -121,20 +121,20 @@ const refreshToken = (model) =>
     if (!uniqueId) {
       throw new Error("you are not login");
     }
-      const { refreshToken: refreshTokenis, accessToken } =
-        generateAccessTokenRefreshToken(user._id);
-      user.refreshToken.push(refreshTokenis);
-      await user.save();
-      await user.updateOne(
-        {
+    const { refreshToken: refreshTokenis, accessToken } =
+      generateAccessTokenRefreshToken(user._id);
+    user.refreshToken.push(refreshTokenis);
+    await user.save();
+    await user.updateOne(
+      {
+        refreshToken,
+      },
+      {
+        $pull: {
           refreshToken,
         },
-        {
-          $pull: {
-            refreshToken,
-          },
-        }
-      );
+      },
+    );
 
     user.refreshToken = undefined;
     user.password = undefined;

@@ -58,10 +58,8 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 
 // ==================================================
-// 🔹 CREATE GLOBAL FOLDERS
+// 🔹 SERVE STATIC FILES
 // ==================================================
-
-// Serve static files
 app.use("/", express.static(path.join(__dirname, "files")));
 
 // ==================================================
@@ -82,7 +80,7 @@ app.all("*", (req, res, next) => {
 app.use(globalErrorHandler);
 
 // ==================================================
-// 🔹 MONGODB (CACHED CONNECTION)
+// 🔹 MONGODB CONNECTION WITH CACHED PROMISE
 // ==================================================
 let cached = global.mongoose;
 
@@ -95,17 +93,32 @@ async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(process.env.mongo_uri)
-      .then((mongoose) => mongoose);
+      .connect(process.env.mongo_uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      })
+      .then((mongoose) => {
+        console.log("✅ MongoDB connected");
+        return mongoose;
+      })
+      .catch((err) => {
+        console.error("❌ MongoDB connection error:", err);
+        process.exit(1); // exit if DB connection fails
+      });
   }
 
   cached.conn = await cached.promise;
   return cached.conn;
 }
 
-connectDB();
 // ==================================================
-// 🔹 START SERVER
+// 🔹 START SERVER AFTER DB CONNECTED
 // ==================================================
+connectDB().then(() => {
+  const PORT = process.env.PORT || 5000;
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+});
 
 module.exports = app;
