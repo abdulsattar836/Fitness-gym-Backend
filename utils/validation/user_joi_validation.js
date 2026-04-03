@@ -1,21 +1,17 @@
 const Joi = require("joi");
 
 const signupUserValidation = Joi.object({
-  fname: Joi.string().required(),
-  lname: Joi.string().required(),
+  fname: Joi.string().trim().min(1).required(),
+  lname: Joi.string().trim().min(1).required(),
   email: Joi.string().email().required(),
-  phoneNumber: Joi.number().required(),
+  phoneNumber: Joi.string()
+    .pattern(/^[0-9]+$/)
+    .required(), // now accepts string of digits
   password: Joi.string().required(),
   Cpassword: Joi.string().optional(),
-
-  // location: Joi.object({
-  //   type: Joi.string().valid("Point"),
-  //   coordinates: Joi.array().items(Joi.number()).length(2),
-  // }).allow(null),
   isVerified: Joi.boolean().default(false),
   otp: Joi.string().allow(null),
 });
-
 const loginUserValidation = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
