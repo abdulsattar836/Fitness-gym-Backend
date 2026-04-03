@@ -92,7 +92,10 @@ app.use(globalErrorHandler);
 // 🔹 MONGODB (CACHED CONNECTION)
 // ==================================================
 let cached = global.mongoose;
-if (!cached) cached = global.mongoose = { conn: null, promise: null };
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 async function connectDB() {
   if (cached.conn) return cached.conn;
@@ -104,18 +107,12 @@ async function connectDB() {
   }
 
   cached.conn = await cached.promise;
-  console.log("MongoDB connected successfully");
   return cached.conn;
 }
 
 connectDB();
-
 // ==================================================
 // 🔹 START SERVER
 // ==================================================
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
-  console.log(`App running at http://localhost:${PORT}`);
-});
 
 module.exports = app;
