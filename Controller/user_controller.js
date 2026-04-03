@@ -342,20 +342,23 @@ const setEmailPassword = (model) =>
   });
 
 const getAllUsers = catchAsync(async (req, res, next) => {
-  // Fetch all users excluding sensitive fields
   const users = await user_model
     .find()
     .select("-password -resetToken -refreshToken -otp");
 
-  // Check if any users exist
   if (!users || users.length === 0) {
-    return next(new AppError("No users found", 404));
+    return res.status(404).json({
+      status: "fail",
+      message: "No users found",
+    });
   }
 
-  // Send success response
-  successMessage(200, res, "Users retrieved successfully", users);
+  res.status(200).json({
+    status: "success",
+    message: "Users retrieved successfully",
+    data: users,
+  });
 });
-
 module.exports = {
   getAllUsers,
   signUpUser,

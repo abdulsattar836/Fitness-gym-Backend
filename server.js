@@ -58,9 +58,6 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 
 // ==================================================
-// 🔹 SERVE STATIC FILES
-// ==================================================
-app.use("/", express.static(path.join(__dirname, "files")));
 
 // ==================================================
 // 🔹 ROUTES
