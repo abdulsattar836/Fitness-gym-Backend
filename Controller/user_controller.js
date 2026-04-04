@@ -341,26 +341,7 @@ const setEmailPassword = (model) =>
     return successMessage(202, res, "Password reset successfully.", null);
   });
 
-const getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await user_model
-    .find()
-    .select("-password -resetToken -refreshToken -otp");
-
-  if (!users || users.length === 0) {
-    return res.status(404).json({
-      status: "fail",
-      message: "No users found",
-    });
-  }
-
-  res.status(200).json({
-    status: "success",
-    message: "Users retrieved successfully",
-    data: users,
-  });
-});
 module.exports = {
-  getAllUsers,
   signUpUser,
   loginUser,
   otpValidation,
